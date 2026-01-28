@@ -42,7 +42,12 @@ export async function secureApiRoute(
   // Apply rate limiting
   const rateLimitResponse = await rateLimiter(request);
   if (rateLimitResponse) {
-    return rateLimitResponse;
+    // Convert Response to NextResponse
+    const responseData = await rateLimitResponse.json();
+    return NextResponse.json(responseData, {
+      status: rateLimitResponse.status,
+      headers: Object.fromEntries(rateLimitResponse.headers.entries()),
+    });
   }
 
   // Validate CSRF token for state-changing methods
